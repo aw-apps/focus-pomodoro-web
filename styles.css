@@ -1,0 +1,137 @@
+:root {
+  --bg: #0f172a;
+  --card-bg: #111827;
+  --surface: #1f2937;
+  --text: #f9fafb;
+  --muted: #9ca3af;
+  --primary: #fb7185;
+  --primary-strong: #e11d48;
+  --focus-ring: #fecdd3;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: radial-gradient(circle at top, #1e293b, var(--bg));
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.app {
+  width: min(100%, 34rem);
+}
+
+.app__header {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.app__header h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.app__subtitle {
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+}
+
+.timer-card {
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(156, 163, 175, 0.2);
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 20px 40px rgba(2, 6, 23, 0.35);
+}
+
+.mode-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.mode-tab {
+  border: 0;
+  border-radius: 0.6rem;
+  padding: 0.6rem 0.4rem;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mode-tab.is-active {
+  background: var(--primary);
+  color: #1f2937;
+}
+
+.mode-label {
+  text-align: center;
+  margin: 1rem 0 0;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+}
+
+.time-display {
+  margin: 0.2rem 0 1rem;
+  text-align: center;
+  font-size: clamp(3rem, 16vw, 5rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.control-btn {
+  border: 1px solid transparent;
+  border-radius: 0.6rem;
+  background: var(--surface);
+  color: var(--text);
+  padding: 0.7rem 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.control-btn--primary {
+  background: var(--primary);
+  color: #1f2937;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+button:hover {
+  filter: brightness(1.05);
+}
+
+.control-btn--primary:hover {
+  background: var(--primary-strong);
+  color: #fff;
+}
+
+@media (min-width: 48rem) {
+  body {
+    padding: 2rem;
+  }
+
+  .timer-card {
+    padding: 1.4rem;
+  }
+}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Pomodoro</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app" aria-label="Pomodoro timer">
+    <header class="app__header">
+      <h1>Focus Pomodoro</h1>
+      <p class="app__subtitle">Stay focused with simple timed sessions.</p>
+    </header>
+
+    <section class="timer-card" aria-live="polite">
+      <div class="mode-tabs" role="tablist" aria-label="Timer modes">
+        <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" data-mode="focus">Focus</button>
+        <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="shortBreak">Short Break</button>
+        <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="longBreak">Long Break</button>
+      </div>
+
+      <p class="mode-label" data-current-mode>Focus</p>
+      <p class="time-display" data-time-display>25:00</p>
+
+      <div class="controls">
+        <button class="control-btn control-btn--primary" type="button" data-action="start">Start</button>
+        <button class="control-btn" type="button" data-action="pause">Pause</button>
+        <button class="control-btn" type="button" data-action="reset">Reset</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
