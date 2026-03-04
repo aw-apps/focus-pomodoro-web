@@ -90,3 +90,46 @@ window.Pomodoro = {
   formatTime,
   PomodoroTimerEngine
 };
+
+function getUIElements() {
+  return {
+    modeTabs: Array.from(document.querySelectorAll("[data-mode]")),
+    modeLabel: document.querySelector("[data-current-mode]"),
+    timeDisplay: document.querySelector("[data-time-display]"),
+    startButton: document.querySelector('[data-action="start"]'),
+    pauseButton: document.querySelector('[data-action="pause"]'),
+    resetButton: document.querySelector('[data-action="reset"]')
+  };
+}
+
+function createPomodoroApp() {
+  const ui = getUIElements();
+  const engine = new PomodoroTimerEngine();
+
+  function render(state) {
+    ui.modeTabs.forEach((tab) => {
+      const isActive = tab.dataset.mode === state.mode;
+      tab.classList.toggle("is-active", isActive);
+      tab.setAttribute("aria-selected", String(isActive));
+    });
+
+    ui.modeLabel.textContent = MODE_CONFIG[state.mode].label;
+    ui.timeDisplay.textContent = state.formattedTime;
+    ui.startButton.disabled = state.isRunning;
+    ui.pauseButton.disabled = !state.isRunning;
+  }
+
+  function bindEvents() {
+    ui.startButton.addEventListener("click", () => engine.start());
+    ui.pauseButton.addEventListener("click", () => engine.pause());
+    ui.resetButton.addEventListener("click", () => engine.reset());
+    ui.modeTabs.forEach((tab) => {
+      tab.addEventListener("click", () => engine.setMode(tab.dataset.mode));
+    });
+  }
+
+  engine.subscribe(render);
+  bindEvents();
+}
+
+document.addEventListener("DOMContentLoaded", createPomodoroApp);
