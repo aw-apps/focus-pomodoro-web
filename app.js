@@ -9,6 +9,7 @@ const DEFAULT_SETTINGS = {
   longBreakMinutes: 15,
   longBreakInterval: 4
 };
+const SETTINGS_STORAGE_KEY = "pomodoroSettings";
 
 function formatTime(totalSeconds) {
   const safeSeconds = Math.max(0, totalSeconds);
@@ -138,6 +139,26 @@ function createPomodoroApp() {
     return errors;
   }
 
+  function loadSettings() {
+    const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (!raw) {
+      return { ...DEFAULT_SETTINGS };
+    }
+    const parsed = JSON.parse(raw);
+    const nextSettings = {
+      focusMinutes: Number.parseInt(String(parsed.focusMinutes), 10),
+      shortBreakMinutes: Number.parseInt(String(parsed.shortBreakMinutes), 10),
+      longBreakMinutes: Number.parseInt(String(parsed.longBreakMinutes), 10),
+      longBreakInterval: Number.parseInt(String(parsed.longBreakInterval), 10)
+    };
+    const errors = getValidationErrors(nextSettings);
+    return errors.length === 0 ? nextSettings : { ...DEFAULT_SETTINGS };
+  }
+
+  function saveSettings(nextSettings) {
+    window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(nextSettings));
+  }
+
   function updateEngineDurations(nextSettings) {
     engine.config.focus.seconds = nextSettings.focusMinutes * 60;
     engine.config.shortBreak.seconds = nextSettings.shortBreakMinutes * 60;
@@ -193,10 +214,13 @@ function createPomodoroApp() {
       }
       Object.assign(settings, nextSettings);
       updateEngineDurations(settings);
+      saveSettings(settings);
       showSettingsFeedback("Settings updated.", false);
     });
   }
 
+  Object.assign(settings, loadSettings());
+  updateEngineDurations(settings);
   engine.subscribe(render);
   renderSettingsForm(settings);
   bindEvents();
