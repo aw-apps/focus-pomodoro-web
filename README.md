@@ -19,31 +19,39 @@
 - Vanilla JavaScript (ES6+)
 - localStorage（持久化）
 
-## 本機執行
+## 本機執行（Local Run）
 
-此專案為純靜態網站，無需安裝依賴。
+此專案為純靜態網站，無需安裝任何套件。
 
-方式一：直接開啟 `index.html`。
+1. 啟動本機靜態伺服器：
 
-方式二（建議）：
+   ```bash
+   python3 -m http.server 8000
+   ```
 
-```bash
-python3 -m http.server 8000
-```
+2. 於瀏覽器開啟 `http://localhost:8000`。
+3. 若 8000 埠被占用，可改用：
 
-開啟 `http://localhost:8000`。
+   ```bash
+   python3 -m http.server 8080
+   ```
 
-## 驗證方式
+## 驗證方式（Validation）
 
-1. 桌機瀏覽器開啟頁面，確認可開始/暫停/重設計時。
-2. 切換到手機尺寸（例如 390x844），確認排版完整、按鈕可點擊。
-3. 修改時長後重新整理，確認設定有保留。
-4. 完成一個專注回合後，確認統計數字更新。
+請依序完成以下驗證：
+
+1. 基本計時：確認 Start / Pause / Reset 可操作，模式可在 Focus / Short Break / Long Break 間切換。
+2. 響應式檢查：瀏覽器開發者工具切換到 `390x844` 與 `1280x800`，確認排版無重疊且按鈕可正常點擊。
+3. 鍵盤可用性：使用 Tab / Shift+Tab / Enter 導覽主要控制與設定表單，確認焦點樣式清楚可見。
+4. 完成提示：讓任一回合倒數到 0，確認畫面有明顯完成提示（高亮）且可聽到提示音。
+5. 設定持久化：修改分鐘數後儲存並重新整理頁面，確認設定與當日 focus 統計仍保留。
+
+> 音效限制：部分瀏覽器會在未有使用者互動時封鎖自動播放音效；此時仍會顯示視覺完成提示與文字訊息。
 
 ## 部署（GitHub Pages）
 
-1. 進入 GitHub Repository → Settings → Pages。
-2. Source 選擇 `Deploy from a branch`。
-3. Branch 選擇 `main` 與 `/ (root)`。
-4. 部署完成後可由：
-   `https://aw-apps.github.io/focus-pomodoro-web/` 存取。
+1. 將變更推送到 GitHub 預設分支（通常為 `main`）。
+2. 進入 Repository → **Settings** → **Pages**。
+3. Build and deployment 的 Source 選擇 **Deploy from a branch**。
+4. Branch 選擇 `main`，資料夾選擇 `/ (root)`，按下 **Save**。
+5. 等待部署完成後，於 Pages 顯示的網站網址開啟（本專案通常為 `https://aw-apps.github.io/focus-pomodoro-web/`）。
