@@ -50,6 +50,12 @@ body {
   border-radius: 1rem;
   padding: clamp(1rem, 2.6vw, 1.35rem);
   box-shadow: 0 20px 40px rgba(2, 6, 23, 0.35);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.timer-card.is-complete {
+  border-color: rgba(251, 113, 133, 0.85);
+  box-shadow: 0 0 0 2px rgba(251, 113, 133, 0.35), 0 20px 40px rgba(2, 6, 23, 0.35);
 }
 
 .settings-card {
