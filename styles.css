@@ -52,6 +52,53 @@ body {
   box-shadow: 0 20px 40px rgba(2, 6, 23, 0.35);
 }
 
+.settings-card {
+  margin-top: 1rem;
+  background: rgba(17, 24, 39, 0.85);
+  border: 1px solid rgba(156, 163, 175, 0.2);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.settings-card h2 {
+  margin: 0 0 0.8rem;
+  font-size: 1rem;
+}
+
+.settings-form {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.settings-form label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.settings-form input {
+  border: 1px solid rgba(156, 163, 175, 0.5);
+  border-radius: 0.5rem;
+  background: #111827;
+  color: var(--text);
+  padding: 0.55rem 0.65rem;
+}
+
+.settings-feedback {
+  min-height: 1.2rem;
+  margin: 0.7rem 0 0;
+  font-size: 0.85rem;
+}
+
+.settings-feedback.is-error {
+  color: #fda4af;
+}
+
+.settings-feedback.is-success {
+  color: #86efac;
+}
+
 .mode-tabs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -95,6 +142,13 @@ body {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.5rem;
+}
+
+.daily-stats {
+  margin: 0.9rem 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .control-btn {

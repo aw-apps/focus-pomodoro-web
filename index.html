@@ -28,6 +28,32 @@
         <button class="control-btn" type="button" data-action="pause">Pause</button>
         <button class="control-btn" type="button" data-action="reset">Reset</button>
       </div>
+
+      <p class="daily-stats">Today's focus sessions: <strong data-daily-count>0</strong></p>
+    </section>
+
+    <section class="settings-card" aria-label="Timer settings">
+      <h2>Settings</h2>
+      <form class="settings-form" data-settings-form>
+        <label>
+          Focus (minutes)
+          <input type="number" min="1" max="120" data-setting="focusMinutes" value="25" required>
+        </label>
+        <label>
+          Short break (minutes)
+          <input type="number" min="1" max="60" data-setting="shortBreakMinutes" value="5" required>
+        </label>
+        <label>
+          Long break (minutes)
+          <input type="number" min="1" max="90" data-setting="longBreakMinutes" value="15" required>
+        </label>
+        <label>
+          Long break every (focus sessions)
+          <input type="number" min="2" max="12" data-setting="longBreakInterval" value="4" required>
+        </label>
+        <button class="control-btn control-btn--primary" type="submit">Save settings</button>
+      </form>
+      <p class="settings-feedback" data-settings-feedback aria-live="polite"></p>
     </section>
   </main>
 
