@@ -10,6 +10,7 @@ const DEFAULT_SETTINGS = {
   longBreakInterval: 4
 };
 const SETTINGS_STORAGE_KEY = "pomodoroSettings";
+const DAILY_STATS_STORAGE_KEY = "pomodoroDailyStats";
 
 function formatTime(totalSeconds) {
   const safeSeconds = Math.max(0, totalSeconds);
@@ -106,6 +107,7 @@ function getUIElements() {
     startButton: document.querySelector('[data-action="start"]'),
     pauseButton: document.querySelector('[data-action="pause"]'),
     resetButton: document.querySelector('[data-action="reset"]'),
+    dailyCount: document.querySelector("[data-daily-count]"),
     settingsForm: document.querySelector("[data-settings-form]"),
     settingsFeedback: document.querySelector("[data-settings-feedback]"),
     settingsInputs: {
@@ -121,6 +123,9 @@ function createPomodoroApp() {
   const ui = getUIElements();
   const engine = new PomodoroTimerEngine();
   const settings = { ...DEFAULT_SETTINGS };
+  const todayKey = new Date().toISOString().slice(0, 10);
+  let completedFocusSessionsToday = 0;
+  let completionHandledForMode = null;
 
   function getValidationErrors(nextSettings) {
     const errors = [];
@@ -159,6 +164,23 @@ function createPomodoroApp() {
     window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(nextSettings));
   }
 
+  function loadTodayFocusCount() {
+    const raw = window.localStorage.getItem(DAILY_STATS_STORAGE_KEY);
+    if (!raw) {
+      return 0;
+    }
+    const parsed = JSON.parse(raw);
+    const count = Number.parseInt(String(parsed[todayKey] ?? 0), 10);
+    return Number.isInteger(count) && count >= 0 ? count : 0;
+  }
+
+  function saveTodayFocusCount() {
+    const raw = window.localStorage.getItem(DAILY_STATS_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    parsed[todayKey] = completedFocusSessionsToday;
+    window.localStorage.setItem(DAILY_STATS_STORAGE_KEY, JSON.stringify(parsed));
+  }
+
   function updateEngineDurations(nextSettings) {
     engine.config.focus.seconds = nextSettings.focusMinutes * 60;
     engine.config.shortBreak.seconds = nextSettings.shortBreakMinutes * 60;
@@ -179,6 +201,23 @@ function createPomodoroApp() {
     ui.settingsFeedback.classList.toggle("is-success", !isError && message.length > 0);
   }
 
+  function renderDailyStats() {
+    ui.dailyCount.textContent = String(completedFocusSessionsToday);
+  }
+
+  function handleModeCompleted(completedMode) {
+    if (completedMode === "focus") {
+      completedFocusSessionsToday += 1;
+      saveTodayFocusCount();
+      renderDailyStats();
+    }
+
+    const shouldTakeLongBreak = completedMode === "focus" && completedFocusSessionsToday % settings.longBreakInterval === 0;
+    const nextMode = completedMode === "focus" ? (shouldTakeLongBreak ? "longBreak" : "shortBreak") : "focus";
+    engine.setMode(nextMode);
+    engine.start();
+  }
+
   function render(state) {
     ui.modeTabs.forEach((tab) => {
       const isActive = tab.dataset.mode === state.mode;
@@ -190,6 +229,15 @@ function createPomodoroApp() {
     ui.timeDisplay.textContent = state.formattedTime;
     ui.startButton.disabled = state.isRunning;
     ui.pauseButton.disabled = !state.isRunning;
+
+    if (state.remainingSeconds === 0 && !state.isRunning) {
+      if (completionHandledForMode !== state.mode) {
+        completionHandledForMode = state.mode;
+        handleModeCompleted(state.mode);
+      }
+      return;
+    }
+    completionHandledForMode = null;
   }
 
   function bindEvents() {
@@ -221,6 +269,8 @@ function createPomodoroApp() {
 
   Object.assign(settings, loadSettings());
   updateEngineDurations(settings);
+  completedFocusSessionsToday = loadTodayFocusCount();
+  renderDailyStats();
   engine.subscribe(render);
   renderSettingsForm(settings);
   bindEvents();
