@@ -101,6 +101,7 @@ window.Pomodoro = {
 
 function getUIElements() {
   return {
+    timerCard: document.querySelector(".timer-card"),
     modeTabs: Array.from(document.querySelectorAll("[data-mode]")),
     modeLabel: document.querySelector("[data-current-mode]"),
     timeDisplay: document.querySelector("[data-time-display]"),
@@ -205,7 +206,51 @@ function createPomodoroApp() {
     ui.dailyCount.textContent = String(completedFocusSessionsToday);
   }
 
+  function showCompletionCue(completedMode) {
+    const modeLabel = MODE_CONFIG[completedMode].label;
+    showSettingsFeedback(`${modeLabel} session completed.`, false);
+    ui.timerCard.classList.add("is-complete");
+    window.setTimeout(() => ui.timerCard.classList.remove("is-complete"), 900);
+
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) {
+      showSettingsFeedback(`${modeLabel} session completed. Audio cue is not supported in this browser.`, false);
+      return;
+    }
+
+    if (!showCompletionCue.audioContext) {
+      showCompletionCue.audioContext = new AudioContextClass();
+    }
+    const audioContext = showCompletionCue.audioContext;
+
+    function playBeep() {
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.value = 880;
+      gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.06, audioContext.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.28);
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.28);
+    }
+
+    if (audioContext.state === "suspended") {
+      audioContext.resume()
+        .then(playBeep)
+        .catch(() => {
+          showSettingsFeedback(`${modeLabel} session completed. Browser blocked audio until another user action.`, false);
+        });
+      return;
+    }
+
+    playBeep();
+  }
+
   function handleModeCompleted(completedMode) {
+    showCompletionCue(completedMode);
     if (completedMode === "focus") {
       completedFocusSessionsToday += 1;
       saveTodayFocusCount();
