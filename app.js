@@ -3,6 +3,12 @@ const MODE_CONFIG = {
   shortBreak: { label: "Short Break", seconds: 5 * 60 },
   longBreak: { label: "Long Break", seconds: 15 * 60 }
 };
+const DEFAULT_SETTINGS = {
+  focusMinutes: 25,
+  shortBreakMinutes: 5,
+  longBreakMinutes: 15,
+  longBreakInterval: 4
+};
 
 function formatTime(totalSeconds) {
   const safeSeconds = Math.max(0, totalSeconds);
@@ -98,13 +104,59 @@ function getUIElements() {
     timeDisplay: document.querySelector("[data-time-display]"),
     startButton: document.querySelector('[data-action="start"]'),
     pauseButton: document.querySelector('[data-action="pause"]'),
-    resetButton: document.querySelector('[data-action="reset"]')
+    resetButton: document.querySelector('[data-action="reset"]'),
+    settingsForm: document.querySelector("[data-settings-form]"),
+    settingsFeedback: document.querySelector("[data-settings-feedback]"),
+    settingsInputs: {
+      focusMinutes: document.querySelector('[data-setting="focusMinutes"]'),
+      shortBreakMinutes: document.querySelector('[data-setting="shortBreakMinutes"]'),
+      longBreakMinutes: document.querySelector('[data-setting="longBreakMinutes"]'),
+      longBreakInterval: document.querySelector('[data-setting="longBreakInterval"]')
+    }
   };
 }
 
 function createPomodoroApp() {
   const ui = getUIElements();
   const engine = new PomodoroTimerEngine();
+  const settings = { ...DEFAULT_SETTINGS };
+
+  function getValidationErrors(nextSettings) {
+    const errors = [];
+    if (!Number.isInteger(nextSettings.focusMinutes) || nextSettings.focusMinutes < 1 || nextSettings.focusMinutes > 120) {
+      errors.push("Focus duration must be between 1 and 120 minutes.");
+    }
+    if (!Number.isInteger(nextSettings.shortBreakMinutes) || nextSettings.shortBreakMinutes < 1 || nextSettings.shortBreakMinutes > 60) {
+      errors.push("Short break must be between 1 and 60 minutes.");
+    }
+    if (!Number.isInteger(nextSettings.longBreakMinutes) || nextSettings.longBreakMinutes < 1 || nextSettings.longBreakMinutes > 90) {
+      errors.push("Long break must be between 1 and 90 minutes.");
+    }
+    if (!Number.isInteger(nextSettings.longBreakInterval) || nextSettings.longBreakInterval < 2 || nextSettings.longBreakInterval > 12) {
+      errors.push("Long break interval must be between 2 and 12 focus sessions.");
+    }
+    return errors;
+  }
+
+  function updateEngineDurations(nextSettings) {
+    engine.config.focus.seconds = nextSettings.focusMinutes * 60;
+    engine.config.shortBreak.seconds = nextSettings.shortBreakMinutes * 60;
+    engine.config.longBreak.seconds = nextSettings.longBreakMinutes * 60;
+    engine.reset();
+  }
+
+  function renderSettingsForm(nextSettings) {
+    ui.settingsInputs.focusMinutes.value = String(nextSettings.focusMinutes);
+    ui.settingsInputs.shortBreakMinutes.value = String(nextSettings.shortBreakMinutes);
+    ui.settingsInputs.longBreakMinutes.value = String(nextSettings.longBreakMinutes);
+    ui.settingsInputs.longBreakInterval.value = String(nextSettings.longBreakInterval);
+  }
+
+  function showSettingsFeedback(message, isError) {
+    ui.settingsFeedback.textContent = message;
+    ui.settingsFeedback.classList.toggle("is-error", isError);
+    ui.settingsFeedback.classList.toggle("is-success", !isError && message.length > 0);
+  }
 
   function render(state) {
     ui.modeTabs.forEach((tab) => {
@@ -126,9 +178,27 @@ function createPomodoroApp() {
     ui.modeTabs.forEach((tab) => {
       tab.addEventListener("click", () => engine.setMode(tab.dataset.mode));
     });
+    ui.settingsForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const nextSettings = {
+        focusMinutes: Number.parseInt(ui.settingsInputs.focusMinutes.value, 10),
+        shortBreakMinutes: Number.parseInt(ui.settingsInputs.shortBreakMinutes.value, 10),
+        longBreakMinutes: Number.parseInt(ui.settingsInputs.longBreakMinutes.value, 10),
+        longBreakInterval: Number.parseInt(ui.settingsInputs.longBreakInterval.value, 10)
+      };
+      const errors = getValidationErrors(nextSettings);
+      if (errors.length > 0) {
+        showSettingsFeedback(errors[0], true);
+        return;
+      }
+      Object.assign(settings, nextSettings);
+      updateEngineDurations(settings);
+      showSettingsFeedback("Settings updated.", false);
+    });
   }
 
   engine.subscribe(render);
+  renderSettingsForm(settings);
   bindEvents();
 }
 
